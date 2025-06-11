@@ -30,12 +30,15 @@ const Title = styled.h1`
   color: #4a90e2;
 `;
 
+// API URL configuration
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+
 function App() {
   const [data, setData] = useState(null);
   const [selectedWork, setSelectedWork] = useState(null);
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/works')
+    fetch(`${API_URL}/api/works`)
       .then(response => response.json())
       .then(data => setData(data))
       .catch(error => console.error('Error fetching data:', error));
