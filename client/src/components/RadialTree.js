@@ -219,6 +219,22 @@ const RadialTree = ({ data, onNodeClick }) => {
     const paddedEndYear = sortedNodes[sortedNodes.length - 1].year + paddingYears;
     const paddedYearRange = paddedEndYear - paddedStartYear;
 
+    // Create a non-linear scale for better spacing of years after 1000
+    const scaleYear = (year) => {
+      if (year < 1000) {
+        // Linear scale for years before 1000
+        return (year - paddedStartYear) / paddedYearRange;
+      } else {
+        // Non-linear scale for years after 1000
+        const pre1000Range = 1000 - paddedStartYear;
+        const post1000Range = paddedEndYear - 1000;
+        const pre1000Progress = pre1000Range / paddedYearRange;
+        const post1000Progress = (year - 1000) / post1000Range;
+        // Use a square root function to create more space for later years
+        return pre1000Progress + (post1000Progress * post1000Progress) * (1 - pre1000Progress);
+      }
+    };
+
     // Group nodes by epoch
     const nodesByEpoch = Object.keys(epochColors).reduce((acc, epoch) => {
       acc[epoch] = sortedNodes.filter(node => node.epoch === epoch);
@@ -233,8 +249,8 @@ const RadialTree = ({ data, onNodeClick }) => {
       const verticalSpacing = zoneHeight / (maxNodesInEpoch + 1);
 
       nodes.forEach((node, nodeIndex) => {
-        // Calculate x position based on year with padding
-        const yearProgress = (node.year - paddedStartYear) / paddedYearRange;
+        // Calculate x position using the non-linear scale
+        const yearProgress = scaleYear(node.year);
         const x = startX + (endX - startX) * yearProgress;
         
         // Calculate y position within the epoch zone
@@ -295,9 +311,9 @@ const RadialTree = ({ data, onNodeClick }) => {
       .attr("stroke-dasharray", "5,5");
     
     // Add year markers with improved spacing
-    const yearStep = Math.max(1, Math.floor(paddedYearRange / 6));
+    const yearStep = Math.max(1, Math.floor(paddedYearRange / 8)); // Increased number of markers
     for (let year = Math.floor(paddedStartYear); year <= Math.ceil(paddedEndYear); year += yearStep) {
-      const yearProgress = (year - paddedStartYear) / paddedYearRange;
+      const yearProgress = scaleYear(year);
       const x = startX + (endX - startX) * yearProgress;
       
       // Add marker line
@@ -589,6 +605,7 @@ const RadialTree = ({ data, onNodeClick }) => {
       .enter()
       .append("g")
       .attr("class", "node")
+      .style("cursor", "pointer")
       .call(d3.drag()
         .on("start", dragstarted)
         .on("drag", dragged)
