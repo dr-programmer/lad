@@ -9,7 +9,7 @@ const port = process.env.PORT || 3001;
 // Configure CORS with allowed origins
 const allowedOrigins = [
   'http://localhost:3000',  // Local development
-  'https://lad-omega.vercel.app/',  // Vercel deployment
+  'https://lad-omega.vercel.app',  // Vercel deployment
 ];
 
 app.use(cors({
