@@ -38,7 +38,7 @@ function App() {
   const [selectedWork, setSelectedWork] = useState(null);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/works`)
+    fetch('/works.json')
       .then(response => response.json())
       .then(data => setData(data))
       .catch(error => console.error('Error fetching data:', error));
